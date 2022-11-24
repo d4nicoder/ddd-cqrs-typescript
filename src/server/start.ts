@@ -1,6 +1,4 @@
-import fastify, { FastifyReply } from "fastify";
-import { BusinessError } from "../shared/domain/BusinessError";
-import { ValidationError } from "../shared/domain/ValidationError";
+import fastify, { FastifyReply, FastifyRequest } from "fastify";
 import { config } from "../shared/utils/config";
 import { controllers } from "./controllers";
 import { container } from "../shared/container/container";
@@ -13,7 +11,7 @@ const server = fastify({
 controllers.forEach((ctrl) => {
 	const controller = container.get(ctrl);
 
-	const wrapper = async (req: any, reply: FastifyReply) => {
+	const wrapper = async (req: FastifyRequest, reply: FastifyReply) => {
 		let res: ControllerResponse;
 		try {
 			res = await controller.handle(req);

@@ -15,8 +15,8 @@ export class MongoUserRepository extends UserRepository {
 
 	async findByEmail(emailAddress: string): Promise<Nullable<User>> {
 		const email = new EmailValueObject(emailAddress);
-		const db = await this._connection.getDb();
-		const result = await db.collection(this._collection).findOne<UserDefinition>({ email: email.value });
+		const collection = await this._connection.getCollection(this._collection);
+		const result = await collection.findOne<UserDefinition>({ email: email.value });
 		if (!result) {
 			return null;
 		}
@@ -24,8 +24,8 @@ export class MongoUserRepository extends UserRepository {
 	}
 
 	async findById(id: string): Promise<Nullable<User>> {
-		const db = await this._connection.getDb();
-		const result = await db.collection(this._collection).findOne<UserDefinition>({ id: id });
+		const collection = await this._connection.getCollection(this._collection);
+		const result = await collection.findOne<UserDefinition>({ id: id });
 		if (!result) {
 			return null;
 		}
@@ -33,9 +33,7 @@ export class MongoUserRepository extends UserRepository {
 	}
 
 	async save(user: User): Promise<void> {
-		const db = await this._connection.getDb();
-		await db
-			.collection(this._collection)
-			.updateOne({ id: user.id.value }, { $set: user.toPrimitives() }, { upsert: true });
+		const collection = await this._connection.getCollection(this._collection);
+		await collection.updateOne({ id: user.id.value }, { $set: user.toPrimitives() }, { upsert: true });
 	}
 }
