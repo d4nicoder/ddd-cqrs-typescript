@@ -6,7 +6,7 @@ import { EventBus } from "../infrastructure/EventBus";
 import { MongoDatabaseConnection } from "../domain/MongoDatabaseConnection";
 import { MongoWriteConnection } from "../infrastructure/MongoWriteConnection";
 import { config } from "../utils/config";
-import { registerAccountingDependencies } from "../../context/backoffice/accountingDependencies";
+import { registerAccountingDependencies } from "../../context/backoffice/backofficeDependencies";
 
 const builder = new diod.ContainerBuilder();
 
