@@ -10,6 +10,7 @@ describe("UserLoginController", () => {
     const request: ControllerRequest = {
       authenticated: false,
       headers: {},
+      params: {},
       method: 'POST',
       path: '',
       body: {
@@ -26,6 +27,7 @@ describe("UserLoginController", () => {
     const request: ControllerRequest = {
       authenticated: false,
       headers: {},
+      params: {},
       method: 'POST',
       path: '',
       body: {
@@ -44,6 +46,7 @@ describe("UserLoginController", () => {
     const request: ControllerRequest = {
       authenticated: false,
       headers: {},
+      params: {},
       method: 'POST',
       path: '',
       body: {

@@ -13,6 +13,7 @@ describe("UserCreateController", () => {
 			authenticated: false,
 			body: {},
 			headers: {},
+			params: {},
 			method: "POST",
 			path: "",
 		};
@@ -36,6 +37,7 @@ describe("UserCreateController", () => {
 			authenticated: false,
 			body: payload,
 			headers: {},
+			params: {},
 			method: "POST",
 			path: "",
 		};
