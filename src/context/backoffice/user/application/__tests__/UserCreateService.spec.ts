@@ -1,7 +1,10 @@
+import { faker } from '@faker-js/faker'
 import { BusinessError } from "../../../../../shared/domain/BusinessError";
+import { IdValueObject } from '../../../../../shared/domain/IdValueObject'
 import { EventBusMock } from "../../../../../shared/infrastructure/__mocks__/EventBusMock";
 import { UserMockRepository } from "../../domain/__mocks__/UserMockRepository";
 import { UserMother } from "../../domain/__mocks__/UserMother";
+import { UserCreation } from '../../domain/User'
 import { UserCreateService } from "../UserCreateService";
 
 describe("UserCreateService", () => {
@@ -9,27 +12,42 @@ describe("UserCreateService", () => {
 		const repositoryMock = new UserMockRepository();
 		const eventBusMock = new EventBusMock();
 		const service = new UserCreateService(repositoryMock, eventBusMock);
+		const data: UserCreation = {
+			birthDate: faker.date.past().toISOString(),
+			email: faker.internet.email(),
+			firstName: faker.name.firstName(),
+			id: IdValueObject.generate().value,
+			isAdmin: faker.datatype.boolean(),
+			lastName: faker.name.lastName()
+		}
 
 		repositoryMock.findByEmailShouldReturn(UserMother.random());
 
-		await expect(() => service.run(UserMother.random().toPrimitives())).rejects.toBeInstanceOf(BusinessError);
+		await expect(() => service.run(data)).rejects.toBeInstanceOf(BusinessError);
 	});
 
 	it("should create a user and publish events", async () => {
 		const repositoryMock = new UserMockRepository();
 		const eventBusMock = new EventBusMock();
 		const service = new UserCreateService(repositoryMock, eventBusMock);
-		const userToCreate = UserMother.random();
+		const data: UserCreation = {
+			birthDate: faker.date.past(),
+			email: faker.internet.email(),
+			firstName: faker.name.firstName(),
+			id: IdValueObject.generate().value,
+			isAdmin: faker.datatype.boolean(),
+			lastName: faker.name.lastName()
+		}
 
-		await service.run(userToCreate.toPrimitives());
+		await service.run(data);
 
 		repositoryMock.assertSaveCalledTimes(1);
 		repositoryMock.assertSaveCalledWithPrimitives({
-			id: userToCreate.toPrimitives().id,
-			email: userToCreate.toPrimitives().email,
-			firstName: userToCreate.toPrimitives().firstName,
-			lastName: userToCreate.toPrimitives().lastName,
-			birthDate: userToCreate.toPrimitives().birthDate,
+			id: data.id,
+			email: data.email.toLowerCase(),
+			firstName: data.firstName,
+			lastName: data.lastName,
+			birthDate: data.birthDate,
 		});
 		eventBusMock.assertPublishManyCalledTimes(1);
 	});

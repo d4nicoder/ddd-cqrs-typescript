@@ -1,10 +1,12 @@
 import { AggregateRoot } from "../../../../shared/domain/AggregateRoot";
+import { BusinessError } from '../../../../shared/domain/BusinessError'
 import { StringValueObject } from "../../../../shared/domain/StringValueObject";
 import { EmailValueObject } from "../../../../shared/domain/EmailValueObject";
 import { DateValueObject } from "../../../../shared/domain/DateValueObject";
 import { BoolValueObject } from "../../../../shared/domain/BoolValueObject";
 import { Nullable } from "../../../../shared/types/utility";
 import { UserActivatedDomainEvent } from "./events/UserActivatedDomainEvent";
+import { UserAuthenticatedDomainEvent } from './events/UserAuthenticatedDomainEvent'
 import { UserChangedExpirationDomainEvent } from "./events/UserChangedExpirationDomainEvent";
 import { UserChangedPersonalDataDomainEvent } from "./events/UserChangedPersonalDataDomainEvent";
 import { UserCreatedDomainEvent } from "./events/UserCreatedDomainEvent";
@@ -12,6 +14,10 @@ import { UserBecameAdminDomainEvent } from "./events/UserBecameAdminDomainEvent"
 import { UserDeactivatedDomainEvent } from "./events/UserDeactivatedDomainEvent";
 import { UserPasswordChangedDomainEvent } from "./events/UserPasswordChangedDomainEvent";
 import { UserRevokedAdminDomainEvent } from "./events/UserRevokedAdminDomainEvent";
+import { UserTokenCreatedEvent } from './events/UserTokenCreatedDomainEvent'
+import { UserTokenDeletedEvent } from './events/UserTokenDeletedDomainEvent'
+import { UserPassword, UserPasswordDefinition } from './UserPassword'
+import { UserToken, UserTokenDefinition } from './UserToken'
 
 export interface UserDefinition {
 	id: string;
@@ -24,8 +30,8 @@ export interface UserDefinition {
 	createdAt: Date;
 	expiresAt: Nullable<Date>;
 	isActive: boolean;
-	password: string;
-	salt: string;
+	password: UserPasswordDefinition;
+	tokens: UserTokenDefinition[]
 }
 
 export interface UserCreation {
@@ -33,8 +39,9 @@ export interface UserCreation {
 	firstName: string;
 	lastName: string;
 	email: string;
-	birthDate: Date;
+	birthDate: Date | string;
 	isAdmin: boolean;
+	password?: string;
 }
 
 /**
@@ -54,18 +61,24 @@ export class User extends AggregateRoot<UserDefinition> {
 	private readonly _createdAt: DateValueObject;
 	private _expiresAt: Nullable<DateValueObject>;
 	private _isActive: BoolValueObject;
-	private _password: StringValueObject;
-	private _salt: StringValueObject;
+	private _password: UserPassword;
+	private _tokens: UserToken[];
 
 	static create(props: UserCreation): User {
+		const birthDate = new DateValueObject(props.birthDate).value
 		const user = new User({
-			...props,
+			id: props.id,
+			firstName: props.firstName,
+			lastName: props.lastName,
+			email: props.email,
+			birthDate: birthDate,
+			isAdmin: props.isAdmin,
 			createdAt: new Date(),
 			fullName: `${props.firstName} ${props.lastName}`,
 			expiresAt: null,
 			isActive: true,
-			password: "",
-			salt: "",
+			password: props.password ? UserPassword.create(props.password).toPrimitives() : UserPassword.createRandom().toPrimitives(),
+			tokens: []
 		});
 
 		user.registerEvent(new UserCreatedDomainEvent(user.toPrimitives()));
@@ -83,8 +96,8 @@ export class User extends AggregateRoot<UserDefinition> {
 		this._createdAt = new DateValueObject(user.createdAt);
 		this._expiresAt = user.expiresAt ? new DateValueObject(user.expiresAt) : null;
 		this._isActive = new BoolValueObject(user.isActive);
-		this._password = new StringValueObject(user.password);
-		this._salt = new StringValueObject(user.salt);
+		this._password = new UserPassword(user.password);
+		this._tokens = user.tokens ? user.tokens.map(t => new UserToken(t)) : []
 
 		this._buildName();
 	}
@@ -164,9 +177,38 @@ export class User extends AggregateRoot<UserDefinition> {
 	 * @param {string} newPassword
 	 */
 	changePassword(newPassword: string) {
-		// TODO: hash password
-		this._password = new StringValueObject(newPassword);
+		this._password = UserPassword.create(newPassword);
 		this.registerEvent(new UserPasswordChangedDomainEvent(this.toPrimitives()));
+	}
+
+	/**
+	 * Check if the user password is valid
+	 * @param {string} password
+	 * @returns {boolean}
+	 */
+	verifyPassword(password: string): boolean {
+		if (!this._password.verify(password)) {
+			return false
+		}
+
+		this.registerEvent(new UserAuthenticatedDomainEvent(this.toPrimitives()));
+		return true
+	}
+
+	/**
+	 * Return if the user is active
+	 * @returns {boolean}
+	 */
+	isActive(): boolean {
+		return this._isActive.value === true
+	}
+
+	/**
+	 * Return if the user account has expired
+	 * @returns {boolean}
+	 */
+	hasExpired(): boolean {
+		return this._expiresAt !== null && this._expiresAt.value < new Date()
 	}
 
 	/**
@@ -191,6 +233,41 @@ export class User extends AggregateRoot<UserDefinition> {
 		this.registerEvent(new UserRevokedAdminDomainEvent(this.toPrimitives()));
 	}
 
+	/**
+	 * Generate a new access token for this user
+	 * @param {string} name
+	 * @returns {string}
+	 */
+	generateToken(name: string): string {
+		if (this._tokens.length > 9) {
+			throw new BusinessError("Reached the maximum number of tokens")
+		}
+		const token = UserToken.create(name)
+		this._tokens.push(token)
+		this.registerEvent(new UserTokenCreatedEvent({
+			id: this.id.value,
+			token: token.toPrimitives()
+		}))
+		return token.toPrimitives().token
+	}
+
+	/**
+	 * Delete a user token by id
+	 * @param {string} tokenId
+	 */
+	deleteToken(tokenId: string) {
+		const numTokens = this._tokens.length
+		this._tokens = this._tokens.filter((t) => t.toPrimitives().id !== tokenId)
+		if (this._tokens.length === numTokens) {
+			return
+		}
+
+		this.registerEvent(new UserTokenDeletedEvent({
+			id: this.id.value,
+			tokenId: tokenId
+		}))
+	}
+
 	toPrimitives(): { id: string } & UserDefinition {
 		return {
 			id: this.id.value,
@@ -203,8 +280,8 @@ export class User extends AggregateRoot<UserDefinition> {
 			createdAt: this._createdAt.value,
 			expiresAt: this._expiresAt?.value ?? null,
 			isActive: this._isActive.value,
-			password: this._password.value,
-			salt: this._salt.value,
+			password: this._password.toPrimitives(),
+			tokens: this._tokens.map(t => t.toPrimitives())
 		};
 	}
 }

@@ -8,6 +8,7 @@ export class DateValueObject extends ValueObject<Date> {
 	get value() {
 		return this._value;
 	}
+
 	toString() {
 		return this.value.toString();
 	}

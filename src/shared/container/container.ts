@@ -6,7 +6,7 @@ import { EventBus } from "../infrastructure/EventBus";
 import { MongoDatabaseConnection } from "../domain/MongoDatabaseConnection";
 import { MongoWriteConnection } from "../infrastructure/MongoWriteConnection";
 import { config } from "../utils/config";
-import { registerAccountingDependencies } from "../../context/backoffice/backofficeDependencies";
+import { registerBackofficeDependencies } from "../../context/backoffice/backofficeDependencies";
 
 const builder = new diod.ContainerBuilder();
 
@@ -21,6 +21,6 @@ builder
 	.asSingleton();
 
 // Register accounting dependencies
-registerAccountingDependencies(builder);
+registerBackofficeDependencies(builder);
 
 export const container = builder.build({ autowire: true });
