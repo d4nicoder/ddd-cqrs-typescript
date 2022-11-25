@@ -15,6 +15,13 @@ export const config = convict({
 		default: 3333,
 		env: "HTTP_PORT",
 	},
+	jwt: {
+		secret: {
+			doc: "JWT secret",
+			default: "supersecret",
+			env: "JWT_SECRET"
+		}
+	},
 	mongo: {
 		write: {
 			uri: {

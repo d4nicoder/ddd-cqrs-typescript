@@ -3,7 +3,7 @@ import { ControllerRequest } from "../../../../../shared/domain/ControllerReques
 import { ControllerResponse } from "../../../../../shared/domain/ControllerResponse";
 import { registerController } from "../../../../../shared/container/registerController";
 import { UserCreateService } from "../../application/UserCreateService";
-import { UserDefinition } from "../../domain/User";
+import { UserCreation, UserDefinition } from '../../domain/User'
 
 @registerController()
 export class UserCreateController extends Controller {
@@ -28,12 +28,12 @@ export class UserCreateController extends Controller {
 				password: { type: "string" },
 				birthDate: { type: "string", format: "date-time" },
 			},
-			required: ["id", "firstName", "lastName", "email", "password", "birthDate"],
+			required: ["id", "firstName", "lastName", "email", "birthDate"],
 		});
 	}
 
 	async run(req: ControllerRequest): Promise<ControllerResponse> {
-		await this.userCreate.run(req.body as UserDefinition);
+		await this.userCreate.run(req.body as UserCreation);
 		return new ControllerResponse().json({});
 	}
 }

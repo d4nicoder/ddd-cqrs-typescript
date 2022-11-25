@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { BusinessError } from '../../../../../shared/domain/BusinessError'
 import { IdValueObject } from "../../../../../shared/domain/IdValueObject";
+import { Time } from '../../../../../shared/utils/Time'
 import { UserMother } from "../__mocks__/UserMother";
 import { UserActivatedDomainEvent } from "../events/UserActivatedDomainEvent";
 import { UserBecameAdminDomainEvent } from "../events/UserBecameAdminDomainEvent";
@@ -12,6 +13,7 @@ import { UserRevokedAdminDomainEvent } from "../events/UserRevokedAdminDomainEve
 import { UserTokenCreatedEvent } from '../events/UserTokenCreatedDomainEvent'
 import { UserTokenDeletedEvent } from '../events/UserTokenDeletedDomainEvent'
 import { User } from "../User";
+import { UserPassword } from '../UserPassword'
 
 describe("User", () => {
 	it("should instantiate a user", () => {
@@ -26,8 +28,7 @@ describe("User", () => {
 			createdAt: faker.date.past(),
 			isActive: faker.datatype.boolean(),
 			isAdmin: faker.datatype.boolean(),
-			password: faker.internet.password(),
-			salt: faker.random.alphaNumeric(10),
+			password: UserPassword.createRandom().toPrimitives(),
 			tokens: []
 		});
 
@@ -119,10 +120,12 @@ describe("User", () => {
 
 	it("should change the user password and register event", () => {
 		const user = UserMother.random();
+		const originalPassword = user.toPrimitives().password;
 		const password = faker.internet.password();
 		user.changePassword(password);
 
-		expect(user.toPrimitives().password).toBe(password);
+		expect(user.toPrimitives().password.hash).not.toBe(originalPassword.hash);
+		expect(user.toPrimitives().password.salt).not.toBe(originalPassword.salt);
 
 		const events = user.pullEvents();
 		expect(events).toHaveLength(1);
@@ -192,5 +195,37 @@ describe("User", () => {
 		const events = user.pullEvents()
 		expect(events).toHaveLength(1)
 		expect(events[0]).toBeInstanceOf(UserTokenDeletedEvent)
+	})
+
+	it("should return true if user is active", () => {
+		const user = UserMother.active()
+		expect(user.isActive()).toBe(true)
+	})
+
+	it("should return false if user is inactive", () => {
+		const user = UserMother.inactive()
+		expect(user.isActive()).toBe(false)
+	})
+
+	it("should return true if user has expired", () => {
+		const user = UserMother.withExpiration(new Time().subtractDays(1).toDate())
+		expect(user.hasExpired()).toBe(true)
+	})
+
+	it("should return false if user has not expired", () => {
+		const user = UserMother.withExpiration(new Time().addDays(1).toDate())
+		expect(user.hasExpired()).toBe(false)
+	})
+
+	it("should return true if the password is valid", () => {
+		const password = faker.random.alphaNumeric(10)
+		const user = UserMother.withPassword(password)
+		expect(user.verifyPassword(password)).toBe(true)
+	})
+
+	it("should return false if the password is invalid", () => {
+		const password = faker.random.alphaNumeric(10)
+		const user = UserMother.withPassword(password)
+		expect(user.verifyPassword("bad-password")).toBe(false)
 	})
 });
