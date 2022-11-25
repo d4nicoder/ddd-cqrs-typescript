@@ -7,11 +7,11 @@ export interface UserAuthenticatedDomainEventPayload {
 
 /**
  * @name UserActivatedDomainEvent
- * @description This event is triggered when a user is activated
+ * @description This event is triggered when a user is authenticated
  * @domain Accounting
  * @version 1
  * @type Event
- * @event admin.events.1.accounting.user.activated
+ * @event admin.events.1.accounting.user.authenticated
  */
 export class UserAuthenticatedDomainEvent extends DomainEvent<UserAuthenticatedDomainEventPayload> {
 	static routingKey = "admin.events.1.accounting.user.authenticated";

@@ -181,6 +181,11 @@ export class User extends AggregateRoot<UserDefinition> {
 		this.registerEvent(new UserPasswordChangedDomainEvent(this.toPrimitives()));
 	}
 
+	/**
+	 * Check if the user password is valid
+	 * @param {string} password
+	 * @returns {boolean}
+	 */
 	verifyPassword(password: string): boolean {
 		if (!this._password.verify(password)) {
 			return false
@@ -190,10 +195,18 @@ export class User extends AggregateRoot<UserDefinition> {
 		return true
 	}
 
+	/**
+	 * Return if the user is active
+	 * @returns {boolean}
+	 */
 	isActive(): boolean {
 		return this._isActive.value === true
 	}
 
+	/**
+	 * Return if the user account has expired
+	 * @returns {boolean}
+	 */
 	hasExpired(): boolean {
 		return this._expiresAt !== null && this._expiresAt.value < new Date()
 	}

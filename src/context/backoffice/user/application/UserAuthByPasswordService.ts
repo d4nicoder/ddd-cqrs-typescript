@@ -6,6 +6,12 @@ import { EventBus } from '../../../../shared/infrastructure/EventBus'
 import { User } from '../domain/User'
 import { UserRepository } from '../domain/UserRepository'
 
+/**
+ * @description This service is responsible for authenticating a user by password
+ * @class UserAuthByPasswordService
+ * @extends {DomainService}
+ * @memberof module:accounting/user
+ */
 @registerService()
 export class UserAuthByPasswordService extends DomainService {
   constructor (private repository: UserRepository, private eventBus: EventBus) {

@@ -6,6 +6,13 @@ export interface UserPasswordDefinition {
   salt: string
 }
 
+/**
+ * @name UserPassword
+ * @description This is the user password value object
+ * @domain Accounting
+ * @version 1
+ * @type ValueObject
+ */
 export class UserPassword {
   private _hash: StringValueObject
   private _salt: StringValueObject
