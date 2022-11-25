@@ -60,7 +60,7 @@ describe("UserAuthByPassword", () => {
     const service = new UserAuthByPasswordService(userRepository, eventBus)
     const email = faker.internet.email()
     const password = faker.random.alphaNumeric(10)
-    const authedUser = UserMother.inactived()
+    const authedUser = UserMother.inactive()
 
     userRepository.findByEmailShouldReturn(authedUser)
 

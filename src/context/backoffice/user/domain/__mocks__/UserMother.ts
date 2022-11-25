@@ -1,6 +1,6 @@
-import { faker } from "@faker-js/faker";
-import { IdValueObject } from "../../../../../shared/domain/IdValueObject";
-import { User } from "../User";
+import { faker } from '@faker-js/faker'
+import { IdValueObject } from '../../../../../shared/domain/IdValueObject'
+import { User } from '../User'
 import { UserPassword } from '../UserPassword'
 import { UserToken } from '../UserToken'
 
@@ -23,80 +23,61 @@ export class UserMother {
 	}
 
 	static withExpiration(expiresAt: Date): User {
-		const user = new User({
+		return new User({
 			...this.random().toPrimitives(),
 			expiresAt,
 		});
-
-		return user;
 	}
 
 	static active(): User {
-		const user = new User({
+		return new User({
 			...this.random().toPrimitives(),
 			isActive: true,
 		});
-
-		return user;
 	}
 
 	static inactive(): User {
-		const user = new User({
+		return new User({
 			...this.random().toPrimitives(),
 			isActive: false,
 		});
-
-		return user;
 	}
 
 	static notAdmin(): User {
-		const user = new User({
+		return new User({
 			...this.random().toPrimitives(),
 			isAdmin: false,
 		});
-
-		return user;
 	}
 
 	static admin(): User {
-		const user = new User({
+		return new User({
 			...this.random().toPrimitives(),
 			isAdmin: true,
 		});
-
-		return user;
 	}
 
 	static withTokens(num: number): User {
-		const user = new User({
+		return new User({
 			...this.random().toPrimitives(),
-			tokens: Array(num).fill(null).map((_, i) => UserToken.create(`test-${i}`).toPrimitives())
+			tokens: Array(num).fill(null).map((_, i) => UserToken.create(`test-${ i }`).toPrimitives())
 		})
-		return user
 	}
 
 	static withPassword(password: string): User {
-		const user = new User({
+		return new User({
 			...this.random().toPrimitives(),
+			isActive: true,
+			expiresAt: faker.date.future(),
 			password: UserPassword.create(password).toPrimitives()
 		})
-		return user
 	}
 
 	static expiredWithPassword(password: string): User {
-		const user = new User({
+		return new User({
 			...this.random().toPrimitives(),
 			password: UserPassword.create(password).toPrimitives(),
 			expiresAt: faker.date.past()
 		})
-		return user
-	}
-
-	static inactived(): User {
-		const user = new User({
-			...this.random().toPrimitives(),
-			isActive: false
-		})
-		return user
 	}
 }
