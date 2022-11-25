@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import { BusinessError } from '../../../../../shared/domain/BusinessError'
 import { IdValueObject } from "../../../../../shared/domain/IdValueObject";
 import { UserMother } from "../__mocks__/UserMother";
 import { UserActivatedDomainEvent } from "../events/UserActivatedDomainEvent";
@@ -8,6 +9,8 @@ import { UserChangedPersonalDataDomainEvent } from "../events/UserChangedPersona
 import { UserDeactivatedDomainEvent } from "../events/UserDeactivatedDomainEvent";
 import { UserPasswordChangedDomainEvent } from "../events/UserPasswordChangedDomainEvent";
 import { UserRevokedAdminDomainEvent } from "../events/UserRevokedAdminDomainEvent";
+import { UserTokenCreatedEvent } from '../events/UserTokenCreatedDomainEvent'
+import { UserTokenDeletedEvent } from '../events/UserTokenDeletedDomainEvent'
 import { User } from "../User";
 
 describe("User", () => {
@@ -25,6 +28,7 @@ describe("User", () => {
 			isAdmin: faker.datatype.boolean(),
 			password: faker.internet.password(),
 			salt: faker.random.alphaNumeric(10),
+			tokens: []
 		});
 
 		expect(user).toBeInstanceOf(User);
@@ -158,4 +162,35 @@ describe("User", () => {
 
 		expect(user.pullEvents()).toHaveLength(0);
 	});
+
+	it("should generate a new token and register event", () => {
+		const user = UserMother.random()
+		user.generateToken("test")
+
+		expect(user.toPrimitives().tokens).toHaveLength(1)
+		const events = user.pullEvents()
+		expect(events).toHaveLength(1)
+		expect(events[0]).toBeInstanceOf(UserTokenCreatedEvent)
+	})
+
+	it("should throw error if there are more than 9 tokens", () => {
+		const user = UserMother.withTokens(10)
+		expect(() => user.generateToken("test")).toThrow(BusinessError)
+	})
+
+	it("should not register event if delete a not found token", () => {
+		const user = UserMother.withTokens(0)
+		user.deleteToken("test")
+		expect(user.pullEvents()).toHaveLength(0)
+	})
+
+	it("should delete token and register event", () => {
+		const user = UserMother.withTokens(5)
+		user.deleteToken(user.toPrimitives().tokens[4].id)
+
+		expect(user.toPrimitives().tokens).toHaveLength(4)
+		const events = user.pullEvents()
+		expect(events).toHaveLength(1)
+		expect(events[0]).toBeInstanceOf(UserTokenDeletedEvent)
+	})
 });

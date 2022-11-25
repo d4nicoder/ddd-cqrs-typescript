@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { IdValueObject } from "../../../../../shared/domain/IdValueObject";
 import { User } from "../User";
+import { UserToken } from '../UserToken'
 
 export class UserMother {
 	static random(): User {
@@ -17,6 +18,7 @@ export class UserMother {
 			isAdmin: faker.datatype.boolean(),
 			password: faker.internet.password(),
 			salt: faker.random.alphaNumeric(10),
+			tokens: []
 		});
 	}
 
@@ -63,5 +65,13 @@ export class UserMother {
 		});
 
 		return user;
+	}
+
+	static withTokens(num: number): User {
+		const user = new User({
+			...this.random().toPrimitives(),
+			tokens: Array(num).fill(null).map((_, i) => UserToken.create(`test-${i}`).toPrimitives())
+		})
+		return user
 	}
 }

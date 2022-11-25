@@ -34,6 +34,7 @@
     "ajv-formats": "^2.1.1",
     "amqplib": "^0.10.3",
     "convict": "^6.2.3",
+    "dayjs": "^1.11.6",
     "diod": "^2.0.0",
     "fastify": "^4.10.2",
     "mongodb": "^4.12.1",
