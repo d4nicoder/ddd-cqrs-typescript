@@ -36,4 +36,22 @@ export const config = convict({
 			},
 		},
 	},
+	rabbit: {
+		enabled: {
+			doc: "Enable rabbit",
+			default: false,
+			env: "RABBIT_ENABLED",
+			format: Boolean,
+		},
+		exchangeName: {
+			doc: "Rabbit exchange name",
+			default: "backoffice",
+			env: "RABBIT_EXCHANGE_NAME",
+		},
+		uri: {
+			doc: "Rabbit connection uri",
+			default: "amqp://localhost",
+			env: "RABBIT_URI",
+		}
+	}
 });
