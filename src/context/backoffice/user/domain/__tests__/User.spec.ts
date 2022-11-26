@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
-import { BusinessError } from '../../../../../shared/domain/BusinessError'
+import { BusinessError } from "../../../../../shared/domain/BusinessError";
 import { IdValueObject } from "../../../../../shared/domain/IdValueObject";
-import { Time } from '../../../../../shared/utils/Time'
+import { Time } from "../../../../../shared/utils/Time";
 import { UserMother } from "../__mocks__/UserMother";
 import { UserActivatedDomainEvent } from "../events/UserActivatedDomainEvent";
 import { UserBecameAdminDomainEvent } from "../events/UserBecameAdminDomainEvent";
@@ -10,10 +10,10 @@ import { UserChangedPersonalDataDomainEvent } from "../events/UserChangedPersona
 import { UserDeactivatedDomainEvent } from "../events/UserDeactivatedDomainEvent";
 import { UserPasswordChangedDomainEvent } from "../events/UserPasswordChangedDomainEvent";
 import { UserRevokedAdminDomainEvent } from "../events/UserRevokedAdminDomainEvent";
-import { UserTokenCreatedEvent } from '../events/UserTokenCreatedDomainEvent'
-import { UserTokenDeletedEvent } from '../events/UserTokenDeletedDomainEvent'
+import { UserTokenCreatedEvent } from "../events/UserTokenCreatedDomainEvent";
+import { UserTokenDeletedEvent } from "../events/UserTokenDeletedDomainEvent";
 import { User } from "../User";
-import { UserPassword } from '../UserPassword'
+import { UserPassword } from "../UserPassword";
 
 describe("User", () => {
 	it("should instantiate a user", () => {
@@ -29,7 +29,7 @@ describe("User", () => {
 			isActive: faker.datatype.boolean(),
 			isAdmin: faker.datatype.boolean(),
 			password: UserPassword.createRandom().toPrimitives(),
-			tokens: []
+			tokens: [],
 		});
 
 		expect(user).toBeInstanceOf(User);
@@ -167,65 +167,65 @@ describe("User", () => {
 	});
 
 	it("should generate a new token and register event", () => {
-		const user = UserMother.random()
-		user.generateToken("test")
+		const user = UserMother.random();
+		user.generateToken("test");
 
-		expect(user.toPrimitives().tokens).toHaveLength(1)
-		const events = user.pullEvents()
-		expect(events).toHaveLength(1)
-		expect(events[0]).toBeInstanceOf(UserTokenCreatedEvent)
-	})
+		expect(user.toPrimitives().tokens).toHaveLength(1);
+		const events = user.pullEvents();
+		expect(events).toHaveLength(1);
+		expect(events[0]).toBeInstanceOf(UserTokenCreatedEvent);
+	});
 
 	it("should throw error if there are more than 9 tokens", () => {
-		const user = UserMother.withTokens(10)
-		expect(() => user.generateToken("test")).toThrow(BusinessError)
-	})
+		const user = UserMother.withTokens(10);
+		expect(() => user.generateToken("test")).toThrow(BusinessError);
+	});
 
 	it("should not register event if delete a not found token", () => {
-		const user = UserMother.withTokens(0)
-		user.deleteToken("test")
-		expect(user.pullEvents()).toHaveLength(0)
-	})
+		const user = UserMother.withTokens(0);
+		user.deleteToken("test");
+		expect(user.pullEvents()).toHaveLength(0);
+	});
 
 	it("should delete token and register event", () => {
-		const user = UserMother.withTokens(5)
-		user.deleteToken(user.toPrimitives().tokens[4].id)
+		const user = UserMother.withTokens(5);
+		user.deleteToken(user.toPrimitives().tokens[4].id);
 
-		expect(user.toPrimitives().tokens).toHaveLength(4)
-		const events = user.pullEvents()
-		expect(events).toHaveLength(1)
-		expect(events[0]).toBeInstanceOf(UserTokenDeletedEvent)
-	})
+		expect(user.toPrimitives().tokens).toHaveLength(4);
+		const events = user.pullEvents();
+		expect(events).toHaveLength(1);
+		expect(events[0]).toBeInstanceOf(UserTokenDeletedEvent);
+	});
 
 	it("should return true if user is active", () => {
-		const user = UserMother.active()
-		expect(user.isActive()).toBe(true)
-	})
+		const user = UserMother.active();
+		expect(user.isActive()).toBe(true);
+	});
 
 	it("should return false if user is inactive", () => {
-		const user = UserMother.inactive()
-		expect(user.isActive()).toBe(false)
-	})
+		const user = UserMother.inactive();
+		expect(user.isActive()).toBe(false);
+	});
 
 	it("should return true if user has expired", () => {
-		const user = UserMother.withExpiration(new Time().subtractDays(1).toDate())
-		expect(user.hasExpired()).toBe(true)
-	})
+		const user = UserMother.withExpiration(new Time().subtractDays(1).toDate());
+		expect(user.hasExpired()).toBe(true);
+	});
 
 	it("should return false if user has not expired", () => {
-		const user = UserMother.withExpiration(new Time().addDays(1).toDate())
-		expect(user.hasExpired()).toBe(false)
-	})
+		const user = UserMother.withExpiration(new Time().addDays(1).toDate());
+		expect(user.hasExpired()).toBe(false);
+	});
 
 	it("should return true if the password is valid", () => {
-		const password = faker.random.alphaNumeric(10)
-		const user = UserMother.withPassword(password)
-		expect(user.verifyPassword(password)).toBe(true)
-	})
+		const password = faker.random.alphaNumeric(10);
+		const user = UserMother.withPassword(password);
+		expect(user.verifyPassword(password)).toBe(true);
+	});
 
 	it("should return false if the password is invalid", () => {
-		const password = faker.random.alphaNumeric(10)
-		const user = UserMother.withPassword(password)
-		expect(user.verifyPassword("bad-password")).toBe(false)
-	})
+		const password = faker.random.alphaNumeric(10);
+		const user = UserMother.withPassword(password);
+		expect(user.verifyPassword("bad-password")).toBe(false);
+	});
 });

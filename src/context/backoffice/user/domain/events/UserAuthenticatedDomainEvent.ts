@@ -1,5 +1,5 @@
 import { DomainEvent } from "../../../../../shared/domain/DomainEvent";
-import { UserActivatedDomainEvent } from './UserActivatedDomainEvent'
+import { UserActivatedDomainEvent } from "./UserActivatedDomainEvent";
 
 export interface UserAuthenticatedDomainEventPayload {
 	id: string;

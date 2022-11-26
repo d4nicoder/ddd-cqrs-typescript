@@ -1,12 +1,12 @@
 import { AggregateRoot } from "../../../../shared/domain/AggregateRoot";
-import { BusinessError } from '../../../../shared/domain/BusinessError'
+import { BusinessError } from "../../../../shared/domain/BusinessError";
 import { StringValueObject } from "../../../../shared/domain/StringValueObject";
 import { EmailValueObject } from "../../../../shared/domain/EmailValueObject";
 import { DateValueObject } from "../../../../shared/domain/DateValueObject";
 import { BoolValueObject } from "../../../../shared/domain/BoolValueObject";
 import { Nullable } from "../../../../shared/types/utility";
 import { UserActivatedDomainEvent } from "./events/UserActivatedDomainEvent";
-import { UserAuthenticatedDomainEvent } from './events/UserAuthenticatedDomainEvent'
+import { UserAuthenticatedDomainEvent } from "./events/UserAuthenticatedDomainEvent";
 import { UserChangedExpirationDomainEvent } from "./events/UserChangedExpirationDomainEvent";
 import { UserChangedPersonalDataDomainEvent } from "./events/UserChangedPersonalDataDomainEvent";
 import { UserCreatedDomainEvent } from "./events/UserCreatedDomainEvent";
@@ -14,10 +14,10 @@ import { UserBecameAdminDomainEvent } from "./events/UserBecameAdminDomainEvent"
 import { UserDeactivatedDomainEvent } from "./events/UserDeactivatedDomainEvent";
 import { UserPasswordChangedDomainEvent } from "./events/UserPasswordChangedDomainEvent";
 import { UserRevokedAdminDomainEvent } from "./events/UserRevokedAdminDomainEvent";
-import { UserTokenCreatedEvent } from './events/UserTokenCreatedDomainEvent'
-import { UserTokenDeletedEvent } from './events/UserTokenDeletedDomainEvent'
-import { UserPassword, UserPasswordDefinition } from './UserPassword'
-import { UserToken, UserTokenDefinition } from './UserToken'
+import { UserTokenCreatedEvent } from "./events/UserTokenCreatedDomainEvent";
+import { UserTokenDeletedEvent } from "./events/UserTokenDeletedDomainEvent";
+import { UserPassword, UserPasswordDefinition } from "./UserPassword";
+import { UserToken, UserTokenDefinition } from "./UserToken";
 
 export interface UserDefinition {
 	id: string;
@@ -31,7 +31,7 @@ export interface UserDefinition {
 	expiresAt: Nullable<Date>;
 	isActive: boolean;
 	password: UserPasswordDefinition;
-	tokens: UserTokenDefinition[]
+	tokens: UserTokenDefinition[];
 }
 
 export interface UserCreation {
@@ -49,7 +49,6 @@ export interface UserCreation {
  * @description This is the user aggregate
  * @domain Accounting
  * @version 1
- * @type Aggregate
  */
 export class User extends AggregateRoot<UserDefinition> {
 	private _firstName: StringValueObject;
@@ -65,7 +64,7 @@ export class User extends AggregateRoot<UserDefinition> {
 	private _tokens: UserToken[];
 
 	static create(props: UserCreation): User {
-		const birthDate = new DateValueObject(props.birthDate).value
+		const birthDate = new DateValueObject(props.birthDate).value;
 		const user = new User({
 			id: props.id,
 			firstName: props.firstName,
@@ -77,8 +76,10 @@ export class User extends AggregateRoot<UserDefinition> {
 			fullName: `${props.firstName} ${props.lastName}`,
 			expiresAt: null,
 			isActive: true,
-			password: props.password ? UserPassword.create(props.password).toPrimitives() : UserPassword.createRandom().toPrimitives(),
-			tokens: []
+			password: props.password
+				? UserPassword.create(props.password).toPrimitives()
+				: UserPassword.createRandom().toPrimitives(),
+			tokens: [],
 		});
 
 		user.registerEvent(new UserCreatedDomainEvent(user.toPrimitives()));
@@ -97,7 +98,7 @@ export class User extends AggregateRoot<UserDefinition> {
 		this._expiresAt = user.expiresAt ? new DateValueObject(user.expiresAt) : null;
 		this._isActive = new BoolValueObject(user.isActive);
 		this._password = new UserPassword(user.password);
-		this._tokens = user.tokens ? user.tokens.map(t => new UserToken(t)) : []
+		this._tokens = user.tokens ? user.tokens.map((t) => new UserToken(t)) : [];
 
 		this._buildName();
 	}
@@ -188,11 +189,11 @@ export class User extends AggregateRoot<UserDefinition> {
 	 */
 	verifyPassword(password: string): boolean {
 		if (!this._password.verify(password)) {
-			return false
+			return false;
 		}
 
 		this.registerEvent(new UserAuthenticatedDomainEvent(this.toPrimitives()));
-		return true
+		return true;
 	}
 
 	/**
@@ -200,7 +201,7 @@ export class User extends AggregateRoot<UserDefinition> {
 	 * @returns {boolean}
 	 */
 	isActive(): boolean {
-		return this._isActive.value === true
+		return this._isActive.value;
 	}
 
 	/**
@@ -208,7 +209,7 @@ export class User extends AggregateRoot<UserDefinition> {
 	 * @returns {boolean}
 	 */
 	hasExpired(): boolean {
-		return this._expiresAt !== null && this._expiresAt.value < new Date()
+		return this._expiresAt !== null && this._expiresAt.value < new Date();
 	}
 
 	/**
@@ -240,15 +241,17 @@ export class User extends AggregateRoot<UserDefinition> {
 	 */
 	generateToken(name: string): string {
 		if (this._tokens.length > 9) {
-			throw new BusinessError("Reached the maximum number of tokens")
+			throw new BusinessError("Reached the maximum number of tokens");
 		}
-		const token = UserToken.create(name)
-		this._tokens.push(token)
-		this.registerEvent(new UserTokenCreatedEvent({
-			id: this.id.value,
-			token: token.toPrimitives()
-		}))
-		return token.toPrimitives().token
+		const token = UserToken.create(name);
+		this._tokens.push(token);
+		this.registerEvent(
+			new UserTokenCreatedEvent({
+				id: this.id.value,
+				token: token.toPrimitives(),
+			}),
+		);
+		return token.toPrimitives().token;
 	}
 
 	/**
@@ -256,16 +259,18 @@ export class User extends AggregateRoot<UserDefinition> {
 	 * @param {string} tokenId
 	 */
 	deleteToken(tokenId: string) {
-		const numTokens = this._tokens.length
-		this._tokens = this._tokens.filter((t) => t.toPrimitives().id !== tokenId)
+		const numTokens = this._tokens.length;
+		this._tokens = this._tokens.filter((t) => t.toPrimitives().id !== tokenId);
 		if (this._tokens.length === numTokens) {
-			return
+			return;
 		}
 
-		this.registerEvent(new UserTokenDeletedEvent({
-			id: this.id.value,
-			tokenId: tokenId
-		}))
+		this.registerEvent(
+			new UserTokenDeletedEvent({
+				id: this.id.value,
+				tokenId: tokenId,
+			}),
+		);
 	}
 
 	toPrimitives(): { id: string } & UserDefinition {
@@ -281,7 +286,7 @@ export class User extends AggregateRoot<UserDefinition> {
 			expiresAt: this._expiresAt?.value ?? null,
 			isActive: this._isActive.value,
 			password: this._password.toPrimitives(),
-			tokens: this._tokens.map(t => t.toPrimitives())
+			tokens: this._tokens.map((t) => t.toPrimitives()),
 		};
 	}
 }

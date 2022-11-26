@@ -1,10 +1,9 @@
 import { faker } from "@faker-js/faker";
 import { DomainServiceMock } from "../../../../../../shared/domain/__mocks__/DomainServiceMock";
 import { ControllerRequest } from "../../../../../../shared/domain/ControllerRequest";
-import { IdValueObject } from '../../../../../../shared/domain/IdValueObject'
+import { IdValueObject } from "../../../../../../shared/domain/IdValueObject";
 import { UserCreateService } from "../../../application/UserCreateService";
-import { UserMother } from "../../../domain/__mocks__/UserMother";
-import { UserCreation } from '../../../domain/User'
+import { UserCreation } from "../../../domain/User";
 import { UserCreateController } from "../UserCreateController";
 
 describe("UserCreateController", () => {
@@ -32,7 +31,7 @@ describe("UserCreateController", () => {
 			lastName: faker.name.lastName(),
 			birthDate: faker.date.past().toISOString(),
 			isAdmin: faker.datatype.boolean(),
-		}
+		};
 		const request: ControllerRequest = {
 			authenticated: false,
 			body: payload,

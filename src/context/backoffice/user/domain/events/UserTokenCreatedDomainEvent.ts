@@ -1,9 +1,9 @@
 import { DomainEvent } from "../../../../../shared/domain/DomainEvent";
-import { UserTokenDefinition } from '../UserToken'
+import { UserTokenDefinition } from "../UserToken";
 
 export interface UserTokenCreatedEventPayload {
 	id: string;
-	token: UserTokenDefinition
+	token: UserTokenDefinition;
 }
 
 /**
@@ -22,7 +22,7 @@ export class UserTokenCreatedEvent extends DomainEvent<UserTokenCreatedEventPayl
 			id: user.id,
 			payload: {
 				id: user.id,
-				token: user.token
+				token: user.token,
 			},
 		});
 	}
