@@ -1,9 +1,9 @@
-import { Controller, ControllerDefinition, HttpMethod } from "../../../../../shared/domain/Controller";
-import { ControllerRequest } from "../../../../../shared/domain/ControllerRequest";
-import { ControllerResponse } from "../../../../../shared/domain/ControllerResponse";
-import { registerController } from "../../../../../shared/container/registerController";
-import { UserCreateService } from "../../application/UserCreateService";
-import { UserCreation, UserDefinition } from '../../domain/User'
+import {Controller, ControllerDefinition} from "../../../../../shared/domain/Controller";
+import {ControllerRequest} from "../../../../../shared/domain/ControllerRequest";
+import {ControllerResponse} from "../../../../../shared/domain/ControllerResponse";
+import {registerController} from "../../../../../shared/container/registerController";
+import {UserCreateService} from "../../application/UserCreateService";
+import {UserCreation} from "../../domain/User";
 
 @registerController()
 export class UserCreateController extends Controller {

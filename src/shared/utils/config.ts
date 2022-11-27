@@ -19,8 +19,8 @@ export const config = convict({
 		secret: {
 			doc: "JWT secret",
 			default: "supersecret",
-			env: "JWT_SECRET"
-		}
+			env: "JWT_SECRET",
+		},
 	},
 	mongo: {
 		write: {
@@ -52,6 +52,6 @@ export const config = convict({
 			doc: "Rabbit connection uri",
 			default: "amqp://localhost",
 			env: "RABBIT_URI",
-		}
-	}
+		},
+	},
 });

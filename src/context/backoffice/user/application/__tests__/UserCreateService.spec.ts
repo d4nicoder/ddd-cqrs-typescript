@@ -1,11 +1,11 @@
-import { faker } from '@faker-js/faker'
-import { BusinessError } from "../../../../../shared/domain/BusinessError";
-import { IdValueObject } from '../../../../../shared/domain/IdValueObject'
-import { EventBusMock } from "../../../../../shared/infrastructure/__mocks__/EventBusMock";
-import { UserMockRepository } from "../../domain/__mocks__/UserMockRepository";
-import { UserMother } from "../../domain/__mocks__/UserMother";
-import { UserCreation } from '../../domain/User'
-import { UserCreateService } from "../UserCreateService";
+import {faker} from "@faker-js/faker";
+import {BusinessError} from "../../../../../shared/domain/BusinessError";
+import {IdValueObject} from "../../../../../shared/domain/IdValueObject";
+import {EventBusMock} from "../../../../../shared/infrastructure/__mocks__/EventBusMock";
+import {UserMockRepository} from "../../domain/__mocks__/UserMockRepository";
+import {UserMother} from "../../domain/__mocks__/UserMother";
+import {UserCreation} from "../../domain/User";
+import {UserCreateService} from "../UserCreateService";
 
 describe("UserCreateService", () => {
 	it("should throw an error if user exists", async () => {
@@ -18,8 +18,8 @@ describe("UserCreateService", () => {
 			firstName: faker.name.firstName(),
 			id: IdValueObject.generate().value,
 			isAdmin: faker.datatype.boolean(),
-			lastName: faker.name.lastName()
-		}
+			lastName: faker.name.lastName(),
+		};
 
 		repositoryMock.findByEmailShouldReturn(UserMother.random());
 
@@ -36,8 +36,8 @@ describe("UserCreateService", () => {
 			firstName: faker.name.firstName(),
 			id: IdValueObject.generate().value,
 			isAdmin: faker.datatype.boolean(),
-			lastName: faker.name.lastName()
-		}
+			lastName: faker.name.lastName(),
+		};
 
 		await service.run(data);
 
