@@ -1,9 +1,9 @@
-import {registerEventHandler} from "../../../../../shared/container/registerEventHandler";
-import {DomainEventPayload} from "../../../../../shared/domain/EventBusBroker";
-import {EventHandler} from "../../../../../shared/domain/EventHandler";
-import {Nullable} from "../../../../../shared/types/utility";
-import {Client} from "../../domain/Client";
-import {ClientRepository} from "../../domain/ClientRepository";
+import { registerEventHandler } from "../../../../../shared/container/registerEventHandler";
+import { DomainEventPayload } from "../../../../../shared/domain/EventBusBroker";
+import { EventHandler } from "../../../../../shared/domain/EventHandler";
+import { Nullable } from "../../../../../shared/types/utility";
+import { Client } from "../../domain/Client";
+import { ClientRepository } from "../../domain/ClientRepository";
 
 interface ClientCreatedEvent {
 	id: string;
@@ -24,6 +24,7 @@ interface ClientCreatedEvent {
 @registerEventHandler()
 export class ClientCreateOnCreatedFromSaaS extends EventHandler {
 	constructor(private clientRepository: ClientRepository) {
+		// TODO: We should move these magic strings to a config file
 		super("saas.events.1.user.created", "create_client_on_saas_created");
 	}
 
