@@ -1,13 +1,13 @@
-import "reflect-metadata";
 import diod from "diod";
+import "reflect-metadata";
+import { registerBackofficeDependencies } from "../../context/backoffice/backofficeDependencies";
 import { EventBusBroker } from "../domain/EventBusBroker";
-import { InMemoryEventBusBroker } from "../infrastructure/InMemoryEventBusBroker";
-import { EventBus } from "../infrastructure/EventBus";
 import { MongoDatabaseConnection } from "../domain/MongoDatabaseConnection";
+import { EventBus } from "../infrastructure/EventBus";
+import { InMemoryEventBusBroker } from "../infrastructure/InMemoryEventBusBroker";
 import { MongoWriteConnection } from "../infrastructure/MongoWriteConnection";
 import { RabbitEventBusBroker } from "../infrastructure/RabbitEventBusBroker";
 import { config } from "../utils/config";
-import { registerBackofficeDependencies } from "../../context/backoffice/backofficeDependencies";
 
 const builder = new diod.ContainerBuilder();
 

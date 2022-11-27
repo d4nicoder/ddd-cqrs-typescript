@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { ValidationError } from "../domain/ValidationError";
 import { config } from "./config";
+
 export class Token {
 	static sign(payload: any, expiresIn?: string) {
 		const secret = config.get("jwt.secret");

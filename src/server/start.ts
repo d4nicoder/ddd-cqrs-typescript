@@ -1,8 +1,14 @@
 import fastify, { FastifyReply, FastifyRequest } from "fastify";
-import { config } from "../shared/utils/config";
-import { controllers } from "./controllers";
 import { container } from "../shared/container/container";
 import { ControllerResponse } from "../shared/domain/ControllerResponse";
+import { config } from "../shared/utils/config";
+import { controllers } from "./controllers";
+import { subscribeToEvents } from "./subscribeToEvents";
+
+// Event subscribers
+subscribeToEvents().then(() => {
+	console.log("Subscribed to events");
+});
 
 const server = fastify({
 	logger: true,

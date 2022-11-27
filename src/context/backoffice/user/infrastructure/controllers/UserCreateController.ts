@@ -9,7 +9,7 @@ import { UserCreation } from "../../domain/User";
 export class UserCreateController extends Controller {
 	getDefinition(): ControllerDefinition {
 		return {
-			path: "/api/v1/users",
+			path: "/api/v1/backoffice/user",
 			method: "POST",
 			requiredAuth: false,
 			onlyAdmin: false,
