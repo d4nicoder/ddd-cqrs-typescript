@@ -81,7 +81,7 @@ export class RabbitEventBusBroker extends EventBusBroker {
 			return this._channel;
 		}
 		const connection = await this.getConnection();
-		this._channel = await connection.createChannel();
+		this._channel = await connection.createConfirmChannel();
 		await this._channel.assertExchange(this._exchangeName, "topic", { durable: true, autoDelete: false });
 		return this._channel;
 	}
@@ -98,13 +98,31 @@ export class RabbitEventBusBroker extends EventBusBroker {
 			queue,
 			(msg) => {
 				if (msg) {
-					const event = JSON.parse(msg.content.toString()) as DomainEventPayload;
-					callback(event)
-						.then(() => channel.ack(msg))
-						.catch(() => channel.nack(msg));
+					const content = JSON.parse(msg.content.toString());
+					const data: DomainEventPayload = {
+						content: content,
+						queue,
+						routingKey,
+						correlationId: msg.properties.correlationId,
+						id: msg.properties.messageId,
+						expiration: msg.properties.expiration,
+						headers: msg.properties.headers,
+						occurredAt: new Date(msg.properties.timestamp),
+						replyTo: msg.properties.replyTo,
+					}
+					callback(data)
+						.then(() => {
+							channel.ack(msg)
+						})
+						.catch((e) => {
+							// TODO: handle error
+							console.error(e)
+						});
 				}
 			},
-			{ noAck: true },
+			{
+				noAck: false,
+			},
 		);
 	}
 
